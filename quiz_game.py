@@ -179,6 +179,14 @@ class QuizGame:
         score = round(correct_count / total_count * 100)
         print("\n" + "=" * 40)
         print(f"결과: {total_count}문제 중 {correct_count}문제 정답! ({score}점)")
+
+        if self.best_score is None or score > self.best_score:
+            self.best_score = score
+            self.save_state()
+            print("새로운 최고 점수입니다!")
+        else:
+            print(f"현재 최고 점수는 {self.best_score}점입니다.")
+
         print("=" * 40)
 
         return score
@@ -216,3 +224,11 @@ class QuizGame:
             print(f"[{number}] {quiz.question}")
 
         print("-" * 40)
+
+    def show_best_score(self):
+        """저장된 최고 점수를 보여준다."""
+        if self.best_score is None:
+            print("아직 퀴즈를 푼 기록이 없습니다.")
+            return
+
+        print(f"최고 점수: {self.best_score}점")
