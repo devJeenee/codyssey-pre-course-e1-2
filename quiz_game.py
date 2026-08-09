@@ -59,6 +59,24 @@ class QuizGame:
         print("5. 종료")
         print("=" * 40)
 
+    def run(self):
+        """종료를 선택할 때까지 메뉴와 선택한 기능을 반복 실행한다."""
+        while True:
+            self.show_menu()
+            menu_number = self.read_number("선택: ", 1, 5)
+
+            if menu_number == 1:
+                self.play_quiz()
+            elif menu_number == 2:
+                self.add_quiz()
+            elif menu_number == 3:
+                self.list_quizzes()
+            elif menu_number == 4:
+                self.show_best_score()
+            else:
+                print("게임을 종료합니다.")
+                return
+
     def read_number(self, prompt, minimum, maximum):
         """정해진 범위의 숫자가 입력될 때까지 다시 입력받는다."""
         while True:
