@@ -1,9 +1,11 @@
 import json
+from pathlib import Path
 
 from quiz import Quiz
 
 
-STATE_FILE = "state.json"
+# quiz_game.py가 있는 프로젝트 폴더를 기준으로 state.json의 절대 경로를 만든다.
+STATE_FILE = Path(__file__).resolve().parent / "state.json"
 
 
 class QuizGame:
