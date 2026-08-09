@@ -52,3 +52,34 @@ class QuizGame:
         print("4. 점수 확인")
         print("5. 종료")
         print("=" * 40)
+
+    def read_number(self, prompt, minimum, maximum):
+        """정해진 범위의 숫자가 입력될 때까지 다시 입력받는다."""
+        while True:
+            user_input = input(prompt).strip()
+
+            if not user_input:
+                print("입력값이 비어 있습니다. 다시 입력하세요.")
+                continue
+
+            try:
+                number = int(user_input)
+            except ValueError:
+                print("숫자로 입력하세요.")
+                continue
+
+            if number < minimum or number > maximum:
+                print(f"{minimum}부터 {maximum} 사이의 숫자를 입력하세요.")
+                continue
+
+            return number
+
+    def read_text(self, prompt):
+        """내용이 있는 문자열이 입력될 때까지 다시 입력받는다."""
+        while True:
+            user_input = input(prompt).strip()
+
+            if user_input:
+                return user_input
+
+            print("입력값은 비워 둘 수 없습니다. 다시 입력하세요.")
