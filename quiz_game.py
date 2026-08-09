@@ -182,3 +182,23 @@ class QuizGame:
         print("=" * 40)
 
         return score
+
+    def add_quiz(self):
+        """새 퀴즈 정보를 입력받아 목록과 state.json에 저장한다."""
+        print("\n새로운 퀴즈를 추가합니다.")
+        question = self.read_text("문제를 입력하세요: ")
+
+        choices = []
+        for number in range(1, Quiz.CHOICE_COUNT + 1):
+            choice = self.read_text(f"선택지 {number}: ")
+            choices.append(choice)
+
+        answer = self.read_number(
+            "정답 번호: ", 1, Quiz.CHOICE_COUNT,
+        )
+        self.quizzes.append(Quiz(question, choices, answer))
+
+        if self.save_state():
+            print("퀴즈가 추가되고 저장되었습니다!")
+        else:
+            print("퀴즈는 추가했지만 파일에는 저장하지 못했습니다.")
