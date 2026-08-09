@@ -1,0 +1,55 @@
+{
+    "quizzes": [
+        {
+            "question": "Python에서 변수의 주된 역할은 무엇일까요?",
+            "choices": [
+                "값에 이름을 붙여 저장한다",
+                "화면의 글자 크기를 바꾼다",
+                "인터넷에 자동으로 연결한다",
+                "Python을 삭제한다"
+            ],
+            "answer": 1
+        },
+        {
+            "question": "정수 42의 자료형은 무엇일까요?",
+            "choices": [
+                "str",
+                "bool",
+                "int",
+                "list"
+            ],
+            "answer": 3
+        },
+        {
+            "question": "참과 거짓을 표현하는 자료형은 무엇일까요?",
+            "choices": [
+                "dict",
+                "bool",
+                "float",
+                "tuple"
+            ],
+            "answer": 2
+        },
+        {
+            "question": "여러 값을 순서대로 저장하고 변경할 수 있는 자료형은?",
+            "choices": [
+                "list",
+                "int",
+                "bool",
+                "None"
+            ],
+            "answer": 1
+        },
+        {
+            "question": "키와 값을 한 쌍으로 저장하는 자료형은 무엇일까요?",
+            "choices": [
+                "str",
+                "list",
+                "dict",
+                "bool"
+            ],
+            "answer": 3
+        }
+    ],
+    "best_score": null
+}

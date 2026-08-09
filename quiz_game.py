@@ -1,10 +1,16 @@
+import json
+
 from quiz import Quiz
+
+
+STATE_FILE = "state.json"
 
 
 class QuizGame:
     def __init__(self):
-        self.quizzes = self.create_default_quizzes()
+        self.quizzes = []
         self.best_score = None
+        self.load_state()
 
     def create_default_quizzes(self):
         """처음 실행할 때 사용할 Python 기초 퀴즈 5개를 만든다."""
@@ -83,3 +89,66 @@ class QuizGame:
                 return user_input
 
             print("입력값은 비워 둘 수 없습니다. 다시 입력하세요.")
+
+    def save_state(self):
+        """퀴즈 목록과 최고 점수를 state.json에 저장한다."""
+        data = {
+            "quizzes": [
+                {
+                    "question": quiz.question,
+                    "choices": quiz.choices,
+                    "answer": quiz.answer,
+                }
+                for quiz in self.quizzes
+            ],
+            "best_score": self.best_score,
+        }
+
+        try:
+            with open(STATE_FILE, "w", encoding="utf-8") as file:
+                json.dump(data, file, ensure_ascii=False, indent=4)
+        except OSError as error:
+            print(f"저장 파일을 쓸 수 없습니다: {error}")
+            return False
+
+        return True
+
+    def load_state(self):
+        """state.json을 불러오고 문제가 있으면 기본 퀴즈로 복구한다."""
+        try:
+            with open(STATE_FILE, "r", encoding="utf-8") as file:
+                data = json.load(file)
+
+            if not isinstance(data["quizzes"], list):
+                raise ValueError
+
+            quizzes = [
+                Quiz(item["question"], item["choices"], item["answer"])
+                for item in data["quizzes"]
+            ]
+            best_score = data["best_score"]
+
+            if best_score is not None and (
+                not isinstance(best_score, int) or not 0 <= best_score <= 100
+            ):
+                raise ValueError
+
+            self.quizzes = quizzes
+            self.best_score = best_score
+            print(f"저장된 데이터를 불러왔습니다. (퀴즈 {len(self.quizzes)}개)")
+        except FileNotFoundError:
+            print("저장 파일이 없어 기본 퀴즈로 시작합니다.")
+            self.restore_defaults()
+            self.save_state()
+        except (json.JSONDecodeError, UnicodeDecodeError, KeyError, TypeError, ValueError):
+            print("저장 파일이 손상되어 기본 퀴즈로 복구합니다.")
+            self.restore_defaults()
+            self.save_state()
+        except OSError as error:
+            print(f"저장 파일을 읽을 수 없습니다: {error}")
+            self.restore_defaults()
+
+    def restore_defaults(self):
+        """기본 퀴즈와 초기 점수로 되돌린다."""
+        self.quizzes = self.create_default_quizzes()
+        self.best_score = None
