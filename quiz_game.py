@@ -202,3 +202,17 @@ class QuizGame:
             print("퀴즈가 추가되고 저장되었습니다!")
         else:
             print("퀴즈는 추가했지만 파일에는 저장하지 못했습니다.")
+
+    def list_quizzes(self):
+        """저장된 퀴즈의 번호와 문제를 목록으로 보여준다."""
+        if not self.quizzes:
+            print("등록된 퀴즈가 없습니다.")
+            return
+
+        print(f"\n등록된 퀴즈 목록 (총 {len(self.quizzes)}개)")
+        print("-" * 40)
+
+        for number, quiz in enumerate(self.quizzes, start=1):
+            print(f"[{number}] {quiz.question}")
+
+        print("-" * 40)
