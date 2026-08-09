@@ -152,3 +152,33 @@ class QuizGame:
         """기본 퀴즈와 초기 점수로 되돌린다."""
         self.quizzes = self.create_default_quizzes()
         self.best_score = None
+
+    def play_quiz(self):
+        """저장된 퀴즈를 차례대로 출제하고 결과를 보여준다."""
+        if not self.quizzes:
+            print("등록된 퀴즈가 없습니다.")
+            return
+
+        correct_count = 0
+        total_count = len(self.quizzes)
+        print(f"\n퀴즈를 시작합니다! (총 {total_count}문제)")
+
+        for number, quiz in enumerate(self.quizzes, start=1):
+            print()
+            quiz.display(number)
+            user_answer = self.read_number(
+                "정답 입력: ", 1, Quiz.CHOICE_COUNT,
+            )
+
+            if quiz.is_correct(user_answer):
+                correct_count += 1
+                print("정답입니다!")
+            else:
+                print(f"오답입니다. 정답은 {quiz.answer}번입니다.")
+
+        score = round(correct_count / total_count * 100)
+        print("\n" + "=" * 40)
+        print(f"결과: {total_count}문제 중 {correct_count}문제 정답! ({score}점)")
+        print("=" * 40)
+
+        return score
