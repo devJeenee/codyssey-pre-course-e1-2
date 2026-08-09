@@ -40,3 +40,15 @@ class QuizGame:
                 3,
             ),
         ]
+
+    def show_menu(self):
+        """사용자가 선택할 수 있는 게임 메뉴를 출력한다."""
+        print("\n" + "=" * 40)
+        print("       Python 기초 퀴즈 게임")
+        print("=" * 40)
+        print("1. 퀴즈 풀기")
+        print("2. 퀴즈 추가")
+        print("3. 퀴즈 목록")
+        print("4. 점수 확인")
+        print("5. 종료")
+        print("=" * 40)
