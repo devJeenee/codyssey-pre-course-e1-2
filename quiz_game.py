@@ -112,21 +112,25 @@ class QuizGame:
 
     def save_state(self):
         """퀴즈 목록과 최고 점수를 state.json에 저장한다."""
-        data = {
-            "quizzes": [
-                {
-                    "question": quiz.question,
-                    "choices": quiz.choices,
-                    "answer": quiz.answer,
-                }
-                for quiz in self.quizzes
-            ],
-            "best_score": self.best_score,
-        }
-
         try:
+            data = {
+                "quizzes": [
+                    {
+                        "question": quiz.question,
+                        "choices": quiz.choices,
+                        "answer": quiz.answer,
+                    }
+                    for quiz in self.quizzes
+                ],
+                "best_score": self.best_score,
+            }
+
             with open(STATE_FILE, "w", encoding="utf-8") as file:
+                # indent : 들여쓰기
                 json.dump(data, file, ensure_ascii=False, indent=4)
+        except MemoryError:
+            print("저장할 데이터가 너무 커서 파일에 저장하지 못했습니다.")
+            return False
         except OSError as error:
             print(f"저장 파일을 쓸 수 없습니다: {error}")
             return False
@@ -162,6 +166,10 @@ class QuizGame:
             self.save_state()
         except (json.JSONDecodeError, UnicodeDecodeError, KeyError, TypeError, ValueError):
             print("저장 파일이 손상되어 기본 퀴즈로 복구합니다.")
+            self.restore_defaults()
+            self.save_state()
+        except (RecursionError, MemoryError):
+            print("저장 파일이 너무 크거나 구조가 복잡하여 기본 퀴즈로 복구합니다.")
             self.restore_defaults()
             self.save_state()
         except OSError as error:

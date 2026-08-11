@@ -12,6 +12,14 @@ class Quiz:
             raise ValueError(
                 f"정답은 1부터 {self.CHOICE_COUNT} 사이의 숫자여야 합니다.")
 
+        try:
+            question.encode("utf-8")
+
+            for choice in choices:
+                choice.encode("utf-8")
+        except UnicodeEncodeError:
+            raise ValueError("문제와 선택지는 UTF-8로 표현할 수 있어야 합니다.")
+
         self.question = question.strip()
         self.choices = [choice.strip() for choice in choices]
         self.answer = answer
