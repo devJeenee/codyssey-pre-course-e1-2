@@ -1,3 +1,4 @@
+import storage
 from quiz_game import QuizGame
 
 
@@ -9,7 +10,7 @@ def main():
     except (KeyboardInterrupt, EOFError):
         print("\n입력이 중단되었습니다. 현재 데이터를 저장합니다.")
 
-        if game.save_state():
+        if storage.save_data(game.quizzes, game.best_score):
             print("저장을 마치고 안전하게 종료합니다.")
         else:
             print("저장에는 실패했지만 프로그램을 종료합니다.")

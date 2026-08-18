@@ -1,18 +1,34 @@
-import json
-from pathlib import Path
+from enum import IntEnum
 
+import storage
 from quiz import Quiz
 
 
-# quiz_game.py가 있는 프로젝트 폴더를 기준으로 state.json의 절대 경로를 만든다.
-STATE_FILE = Path(__file__).resolve().parent / "state.json"
+class MenuOption(IntEnum):
+    def __new__(cls, number, label):
+        member = int.__new__(cls, number)
+        member._value_ = number
+        member.label = label
+        return member
+
+    PLAY_QUIZ = 1, "퀴즈 풀기"
+    ADD_QUIZ = 2, "퀴즈 추가"
+    LIST_QUIZZES = 3, "퀴즈 목록"
+    SHOW_BEST_SCORE = 4, "점수 확인"
+    EXIT = 5, "종료"
 
 
 class QuizGame:
     def __init__(self):
-        self.quizzes = []
-        self.best_score = None
-        self.load_state()
+        loaded_data = storage.load_data()
+
+        if loaded_data is None:
+            print("기본 퀴즈로 시작합니다.")
+            self.quizzes = self.create_default_quizzes()
+            self.best_score = None
+            storage.save_data(self.quizzes, self.best_score)
+        else:
+            self.quizzes, self.best_score = loaded_data
 
     def create_default_quizzes(self):
         """처음 실행할 때 사용할 Python 기초 퀴즈 5개를 만든다."""
@@ -54,30 +70,35 @@ class QuizGame:
         print("\n" + "=" * 40)
         print("       Python 기초 퀴즈 게임")
         print("=" * 40)
-        print("1. 퀴즈 풀기")
-        print("2. 퀴즈 추가")
-        print("3. 퀴즈 목록")
-        print("4. 점수 확인")
-        print("5. 종료")
+
+        for menu in MenuOption:
+            print(f"{menu.value}. {menu.label}")
+
         print("=" * 40)
 
     def run(self):
         """종료를 선택할 때까지 메뉴와 선택한 기능을 반복 실행한다."""
+        menu_actions = {
+            MenuOption.PLAY_QUIZ: self.play_quiz,
+            MenuOption.ADD_QUIZ: self.add_quiz,
+            MenuOption.LIST_QUIZZES: self.list_quizzes,
+            MenuOption.SHOW_BEST_SCORE: self.show_best_score,
+        }
+
         while True:
             self.show_menu()
-            menu_number = self.read_number("선택: ", 1, 5)
+            menu_number = self.read_number(
+                "선택: ",
+                min(menu.value for menu in MenuOption),
+                max(menu.value for menu in MenuOption),
+            )
+            selected_menu = MenuOption(menu_number)
 
-            if menu_number == 1:
-                self.play_quiz()
-            elif menu_number == 2:
-                self.add_quiz()
-            elif menu_number == 3:
-                self.list_quizzes()
-            elif menu_number == 4:
-                self.show_best_score()
-            else:
+            if selected_menu is MenuOption.EXIT:
                 print("게임을 종료합니다.")
                 return
+
+            menu_actions[selected_menu]()
 
     def read_number(self, prompt, minimum, maximum):
         """정해진 범위의 숫자가 입력될 때까지 다시 입력받는다."""
@@ -110,77 +131,6 @@ class QuizGame:
 
             print("입력값은 비워 둘 수 없습니다. 다시 입력하세요.")
 
-    def save_state(self):
-        """퀴즈 목록과 최고 점수를 state.json에 저장한다."""
-        try:
-            data = {
-                "quizzes": [
-                    {
-                        "question": quiz.question,
-                        "choices": quiz.choices,
-                        "answer": quiz.answer,
-                    }
-                    for quiz in self.quizzes
-                ],
-                "best_score": self.best_score,
-            }
-
-            with open(STATE_FILE, "w", encoding="utf-8") as file:
-                # indent : 들여쓰기
-                json.dump(data, file, ensure_ascii=False, indent=4)
-        except MemoryError:
-            print("저장할 데이터가 너무 커서 파일에 저장하지 못했습니다.")
-            return False
-        except OSError as error:
-            print(f"저장 파일을 쓸 수 없습니다: {error}")
-            return False
-
-        return True
-
-    def load_state(self):
-        """state.json을 불러오고 문제가 있으면 기본 퀴즈로 복구한다."""
-        try:
-            with open(STATE_FILE, "r", encoding="utf-8") as file:
-                data = json.load(file)
-
-            if not isinstance(data["quizzes"], list):
-                raise ValueError
-
-            quizzes = [
-                Quiz(item["question"], item["choices"], item["answer"])
-                for item in data["quizzes"]
-            ]
-            best_score = data["best_score"]
-
-            if best_score is not None and (
-                not isinstance(best_score, int) or not 0 <= best_score <= 100
-            ):
-                raise ValueError
-
-            self.quizzes = quizzes
-            self.best_score = best_score
-            print(f"저장된 데이터를 불러왔습니다. (퀴즈 {len(self.quizzes)}개)")
-        except FileNotFoundError:
-            print("저장 파일이 없어 기본 퀴즈로 시작합니다.")
-            self.restore_defaults()
-            self.save_state()
-        except (json.JSONDecodeError, UnicodeDecodeError, KeyError, TypeError, ValueError):
-            print("저장 파일이 손상되어 기본 퀴즈로 복구합니다.")
-            self.restore_defaults()
-            self.save_state()
-        except (RecursionError, MemoryError):
-            print("저장 파일이 너무 크거나 구조가 복잡하여 기본 퀴즈로 복구합니다.")
-            self.restore_defaults()
-            self.save_state()
-        except OSError as error:
-            print(f"저장 파일을 읽을 수 없습니다: {error}")
-            self.restore_defaults()
-
-    def restore_defaults(self):
-        """기본 퀴즈와 초기 점수로 되돌린다."""
-        self.quizzes = self.create_default_quizzes()
-        self.best_score = None
-
     def play_quiz(self):
         """저장된 퀴즈를 차례대로 출제하고 결과를 보여준다."""
         if not self.quizzes:
@@ -210,7 +160,7 @@ class QuizGame:
 
         if self.best_score is None or score > self.best_score:
             self.best_score = score
-            self.save_state()
+            storage.save_data(self.quizzes, self.best_score)
             print("새로운 최고 점수입니다!")
         else:
             print(f"현재 최고 점수는 {self.best_score}점입니다.")
@@ -234,7 +184,7 @@ class QuizGame:
         )
         self.quizzes.append(Quiz(question, choices, answer))
 
-        if self.save_state():
+        if storage.save_data(self.quizzes, self.best_score):
             print("퀴즈가 추가되고 저장되었습니다!")
         else:
             print("퀴즈는 추가했지만 파일에는 저장하지 못했습니다.")
